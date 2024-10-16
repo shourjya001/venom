@@ -1,4 +1,4 @@
-// Polyfill for IE11
+// Polyfill for Object.assign (already included)
 if (!Object.assign) {
   Object.defineProperty(Object, 'assign', {
     enumerable: false,
@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (loadingWrap) loadingWrap.style.display = 'none';
     });
   }
-
   function selectdropdown(s1, s2) {
     var s3 = s2 === 'code' ? 'name' : 'code';
     if (loadingWrap) loadingWrap.style.display = 'block';
