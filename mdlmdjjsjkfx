@@ -1,0 +1,83 @@
+function getBasicDetails(type, codspm, codstatus) {
+    codstatus = codstatus || '';
+
+    var xmlhttp;
+
+    // Using ActiveXObject for IE5
+    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+
+    // Set up the callback function for handling the response
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            var response;
+            try {
+                response = JSON.parse(xmlhttp.responseText);  // Parse JSON response
+            } catch (e) {
+                alert("Error parsing JSON response: " + e.message);
+                return;
+            }
+
+            if (response.id === 'None') {
+                // Disable the codtype inputs and clear the oldcurrency field
+                var codtypeInputs = document.getElementsByName('codtype_cdt');
+                for (var i = 0; i < codtypeInputs.length; i++) {
+                    codtypeInputs[i].disabled = true;
+                    codtypeInputs[i].checked = false;
+                }
+                document.getElementById('oldcurrency').innerText = ""; // Use innerText for IE5
+                alert("No credit files available!");
+
+            } else {
+                var first = 0;
+                var newarr = [25, 26];  // Example array for filtering status
+
+                for (var i = 0; i < response.length; i++) {
+                    var item = response[i];
+                    for (var j = 0; j < newarr.length; j++) {
+                        if (newarr[j] === item.CODSTATUS) {
+                            newarr.splice(j, 1);  // Remove item from newarr
+                        }
+                    }
+
+                    if (first === 0) {
+                        document.getElementById('oldcurrency').innerText = item.CODCUR;  // Use innerText
+                        var codtypeInputs = document.getElementsByName('codtype_cdt');
+                        for (var k = 0; k < codtypeInputs.length; k++) {
+                            if (codtypeInputs[k].value === item.CODSTATUS) {
+                                codtypeInputs[k].checked = true;
+                                codtypeInputs[k].disabled = false;
+                            }
+                        }
+                        first++;
+                    }
+
+                    // Enable all codtype inputs with the correct status
+                    var codtypeInputsAll = document.getElementsByName('codtype_cdt');
+                    for (var l = 0; l < codtypeInputsAll.length; l++) {
+                        if (codtypeInputsAll[l].value === item.CODSTATUS) {
+                            codtypeInputsAll[l].disabled = false;
+                        }
+                    }
+                }
+
+                if (newarr.length > 0 && codstatus === '') {
+                    // Disable the codtype input if newarr has items and codstatus is empty
+                    var codtypeInputsAgain = document.getElementsByName('codtype_cdt');
+                    for (var m = 0; m < codtypeInputsAgain.length; m++) {
+                        if (codtypeInputsAgain[m].value === newarr[0]) {
+                            codtypeInputsAgain[m].disabled = true;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Prepare data for sending as a query string
+    var params = "searchType=FetchCFdetails&searchString=" + escape(codspm) + "&codstatus=" + escape(codstatus);
+
+    // Send the request using POST
+    xmlhttp.open("POST", "dbe_cfl_ModifyCurrency_Save.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send(params);
+}
