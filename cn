@@ -1,0 +1,48 @@
+function checkForCreditFiles(sgrVal, leVal) {
+    var xhr = new ActiveXObject("Microsoft.XMLHTTP"); // Use ActiveXObject for IE5
+    
+    xhr.open('POST', 'dbe_cfl_checkCreditFiles.php', true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var resultData = eval('(' + xhr.responseText + ')'); // Use eval instead of JSON.parse for compatibility
+
+            if (resultData != false) {
+                if (resultData.hasCreditFiles) {
+                    alert("Credit files found for this SGR and LE!");
+                    // Add logic here to display or process the credit files if needed
+                    displayCreditFiles(resultData.creditFiles);
+                } else {
+                    alert("No credit files available for this SGR and LE.");
+                }
+            } else {
+                alert("Error fetching credit file details. Please try again.");
+            }
+        }
+    };
+
+    // Sending request with encoded SGR and LE values
+    var data = "sgr=" + encodeURIComponent(sgrVal) + "&le=" + encodeURIComponent(leVal);
+    xhr.send(data);
+}
+
+// Function to display the credit files (dummy implementation)
+function displayCreditFiles(creditFiles) {
+    var creditFileDiv = document.getElementById("creditFileDetails");
+    creditFileDiv.innerHTML = ""; // Clear previous content
+
+    if (creditFiles.length > 0) {
+        var ul = document.createElement("ul");
+        
+        for (var i = 0; i < creditFiles.length; i++) {
+            var li = document.createElement("li");
+            li.innerHTML = "File ID: " + creditFiles[i].fileId + ", File Name: " + creditFiles[i].fileName;
+            ul.appendChild(li);
+        }
+        
+        creditFileDiv.appendChild(ul);
+    } else {
+        creditFileDiv.innerHTML = "No credit files available.";
+    }
+}
