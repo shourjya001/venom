@@ -1,0 +1,94 @@
+function commonsearch(searchType, searchString, searchParam, stype, check) {
+    var xhr = new ActiveXObject("Microsoft.XMLHTTP"); // Use ActiveXObject for IE5
+    
+    xhr.open('POST', 'dbe_cfl_user_accessTransferSave.php', true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var resultData = eval('(' + xhr.responseText + ')'); // Use eval instead of JSON.parse for compatibility
+
+            if (resultData != false) {
+                if (check == 0) populateSearchOptions(stype, resultData);
+
+                if (stype == 'sgr') {
+                    commonsearch('fetchLEBasedonSGR', resultData[0]['id'], searchParam, 'le', 0);
+                } else if (stype == 'le') {
+                    var selectSgr = document.getElementById("selectsgr_code");
+                    var selectLe = document.getElementById("selectle_code");
+
+                    if (selectSgr.options[selectSgr.selectedIndex].value != '' &&
+                        selectLe.options[selectLe.selectedIndex].value != '') {
+                        checkForCreditFiles(selectSgr.options[selectSgr.selectedIndex].value,
+                                            selectLe.options[selectLe.selectedIndex].value);
+                    } else if (document.getElementById("txtle_code").value != '' ||
+                               document.getElementById("txtle_name").value != '') {
+                        var sgrdata = {};
+                        sgrdata['sgr'] = {'id': resultData[0].sgr_code, 'name': resultData[0].sgr_name};
+                        populateSearchOptions('sgr', sgrdata);
+
+                        var ledata = {};
+                        ledata['le'] = {'id': resultData[0].le_code, 'name': resultData[0].le_name};
+                        populateSearchOptions('le', ledata);
+
+                        checkForCreditFiles(selectSgr.options[selectSgr.selectedIndex].value,
+                                            selectLe.options[selectLe.selectedIndex].value);
+                    }
+                }
+
+                document.getElementById('loading_wrap').style.display = 'none';
+
+            } else {
+                if (check) {
+                    alert("No Matching Results Found...! or You are not authorized to see this SGR/LE, please contact the Banking Admin.");
+                }
+                document.getElementById('loading_wrap').style.display = 'none';
+
+                if (stype == 'le') {
+                    if (check == 1) {
+                        document.getElementById("codria_span").innerHTML = '';
+                    }
+                    alert("No references are available for this LE..!");
+                    emptydropdown(stype);
+                } else if (stype == 'sgr') {
+                    emptydropdown(stype);
+                    emptydropdown('le');
+                }
+            }
+        }
+    };
+
+    // Sending request with proper URL encoding
+    var data = "searchType=" + encodeURIComponent(searchType) + "&searchString=" + encodeURIComponent(searchString);
+    xhr.send(data);
+}
+
+// Function to populate dropdowns (dummy implementation as per your previous code)
+function populateSearchOptions(type, data) {
+    var select = document.getElementById('select' + type + '_code');
+    select.options.length = 0;
+
+    var defaultOption = document.createElement('option');
+    defaultOption.text = 'None';
+    select.add(defaultOption);
+
+    for (var key in data[type]) {
+        if (data[type].hasOwnProperty(key)) {
+            var option = document.createElement('option');
+            option.value = data[type][key].id;
+            option.text = data[type][key].name;
+            select.add(option);
+        }
+    }
+}
+
+// Function to check for credit files (dummy implementation)
+function checkForCreditFiles(sgrVal, leVal) {
+    // Logic to check for credit files
+}
+
+// Function to empty dropdowns (dummy implementation)
+function emptydropdown(type) {
+    var select = document.getElementById('select' + type + '_code');
+    select.options.length = 0;
+}
