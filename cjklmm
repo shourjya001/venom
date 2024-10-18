@@ -1,0 +1,74 @@
+function commonsearch(searchType, searchString, searchParam, stype, check) {
+    var xhr;
+
+    // Check for older IE versions (IE5/IE6)
+    if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest(); // For modern browsers, IE7+, Firefox, Chrome, etc.
+    } else if (window.ActiveXObject) {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP"); // For IE5/IE6
+    } else {
+        console.error("Your browser does not support AJAX.");
+        return;
+    }
+
+    xhr.open('POST', 'dbe_cfl_user_accessTransferSave.php', true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var resultData = eval('(' + xhr.responseText + ')'); // Use eval instead of JSON.parse for compatibility
+
+            if (resultData != false) {
+                if (check == 0) populateSearchOptions(stype, resultData);
+
+                if (stype == 'sgr') {
+                    commonsearch('fetchLEBasedonSGR', resultData[0]['id'], searchParam, 'le', 0);
+                } else if (stype == 'le') {
+                    var selectSgr = document.getElementById("selectsgr_code");
+                    var selectLe = document.getElementById("selectle_code");
+
+                    if (selectSgr && selectSgr.options[selectSgr.selectedIndex].value != '' &&
+                        selectLe && selectLe.options[selectLe.selectedIndex].value != '') {
+                        checkForCreditFiles(selectSgr.options[selectSgr.selectedIndex].value,
+                                            selectLe.options[selectLe.selectedIndex].value);
+                    } else if (document.getElementById("txtle_code").value != '' ||
+                               document.getElementById("txtle_name").value != '') {
+                        var sgrdata = {};
+                        sgrdata['sgr'] = {'id': resultData[0].sgr_code, 'name': resultData[0].sgr_name};
+                        populateSearchOptions('sgr', sgrdata);
+
+                        var ledata = {};
+                        ledata['le'] = {'id': resultData[0].le_code, 'name': resultData[0].le_name};
+                        populateSearchOptions('le', ledata);
+
+                        checkForCreditFiles(selectSgr.options[selectSgr.selectedIndex].value,
+                                            selectLe.options[selectLe.selectedIndex].value);
+                    }
+                }
+
+                document.getElementById('loading_wrap').style.display = 'none';
+
+            } else {
+                if (check) {
+                    alert("No Matching Results Found...! or You are not authorized to see this SGR/LE, please contact the Banking Admin.");
+                }
+                document.getElementById('loading_wrap').style.display = 'none';
+
+                if (stype == 'le') {
+                    if (check == 1) {
+                        document.getElementById("codria_span").innerHTML = '';
+                    }
+                    alert("No references are available for this LE..!");
+                    emptydropdown(stype);
+                } else if (stype == 'sgr') {
+                    emptydropdown(stype);
+                    emptydropdown('le');
+                }
+            }
+        }
+    };
+
+    // Sending request with proper URL encoding
+    var data = "searchType=" + encodeURIComponent(searchType) + "&searchString=" + encodeURIComponent(searchString);
+    xhr.send(data);
+}
