@@ -1,0 +1,106 @@
+function getBasicDetails(type, codspm, codstatus) {
+    codstatus = codstatus || '';
+
+    // Create a form dynamically
+    var form = document.createElement("form");
+    form.method = "POST";
+    form.action = "dbe_cfl_ModifyCurrency_Save.php";
+    form.target = "hiddenFrame";  // Submit form to the hidden iframe
+
+    // Add necessary input fields to the form
+    var searchTypeInput = document.createElement("input");
+    searchTypeInput.type = "hidden";
+    searchTypeInput.name = "searchType";
+    searchTypeInput.value = "FetchCFdetails";
+    form.appendChild(searchTypeInput);
+
+    var searchStringInput = document.createElement("input");
+    searchStringInput.type = "hidden";
+    searchStringInput.name = "searchString";
+    searchStringInput.value = codspm;
+    form.appendChild(searchStringInput);
+
+    var codstatusInput = document.createElement("input");
+    codstatusInput.type = "hidden";
+    codstatusInput.name = "codstatus";
+    codstatusInput.value = codstatus;
+    form.appendChild(codstatusInput);
+
+    // Append form to the body and submit it
+    document.body.appendChild(form);
+    form.submit();
+
+    // Listen for iframe load event to handle response
+    var iframe = document.getElementById("hiddenFrame");
+    iframe.onload = function() {
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        var responseText = iframeDocument.body.innerHTML;  // Get response from iframe
+
+        // Process the response
+        try {
+            var response = eval('(' + responseText + ')');  // Parse response for IE5
+        } catch (e) {
+            alert("Error parsing JSON response: " + e.message);
+            return;
+        }
+
+        if (response.id === 'None') {
+            // Disable checkboxes and clear old currency
+            var codtypeInputs = document.getElementsByName('codtype_cdt');
+            for (var i = 0; i < codtypeInputs.length; i++) {
+                codtypeInputs[i].disabled = true;
+                codtypeInputs[i].checked = false;
+            }
+            document.getElementById('oldcurrency').innerHTML = "";
+            alert("No credit files available!");
+
+        } else {
+            var first = 0;
+            var newarr = [25, 26];  // Example array for filtering status
+
+            for (var i = 0; i < response.length; i++) {
+                var item = response[i];
+                // Filter out the values from newarr that match the CODSTATUS
+                for (var j = 0; j < newarr.length; j++) {
+                    if (newarr[j] === item.CODSTATUS) {
+                        newarr.splice(j, 1);  // Remove item from newarr
+                    }
+                }
+
+                // Update the first credit file
+                if (first === 0) {
+                    document.getElementById('oldcurrency').innerHTML = item.CODCUR;
+                    var codtypeInputs = document.getElementsByName('codtype_cdt');
+                    for (var k = 0; k < codtypeInputs.length; k++) {
+                        if (codtypeInputs[k].value === item.CODSTATUS) {
+                            codtypeInputs[k].checked = true;
+                            codtypeInputs[k].disabled = false;
+                        }
+                    }
+                    first++;
+                }
+
+                // Ensure the rest are enabled
+                var codtypeInputsAll = document.getElementsByName('codtype_cdt');
+                for (var l = 0; l < codtypeInputsAll.length; l++) {
+                    if (codtypeInputsAll[l].value === item.CODSTATUS) {
+                        codtypeInputsAll[l].disabled = false;
+                    }
+                }
+            }
+
+            // If newarr still contains values and codstatus is empty, disable the first one
+            if (newarr.length > 0 && codstatus === '') {
+                var codtypeInputsAgain = document.getElementsByName('codtype_cdt');
+                for (var m = 0; m < codtypeInputsAgain.length; m++) {
+                    if (codtypeInputsAgain[m].value === newarr[0]) {
+                        codtypeInputsAgain[m].disabled = true;
+                    }
+                }
+            }
+        }
+
+        // Remove the form after submission
+        document.body.removeChild(form);
+    };
+}
