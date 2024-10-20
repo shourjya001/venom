@@ -6,7 +6,7 @@ function init() {
 
             // Form submit handling
             var form = document.getElementsByTagName('form')[0];
-            form.attachEvent('onsubmit', function(e) {
+            form.onsubmit=function(e){
                 e.returnValue = false; // Prevent form from submitting normally
 
                 var selectC3 = document.getElementById('selectc3');
@@ -75,7 +75,7 @@ function init() {
                         };
                     }
                 });
-            });
+            };
         }
     };
 }
