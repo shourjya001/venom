@@ -1,0 +1,30 @@
+function selectdropdown(s1, s2) {
+    var s3 = '';
+
+    // Set s3 based on the value of s2
+    if (s2 == 'code') {
+        s3 = 'name';
+    } else if (s2 == 'name') {
+        s3 = 'code';
+    }
+
+    // Show the loading wrap using native JavaScript
+    document.getElementById('loading_wrap').style.display = 'block';
+
+    // Get the selected value from the dropdown
+    var selectElement = document.getElementById("select" + s1 + "_" + s2);
+    var grpid = selectElement.options[selectElement.selectedIndex].value;
+
+    // Set the corresponding value in the other dropdown
+    document.getElementById("select" + s1 + "_" + s3).value = grpid;
+
+    // Pull currency & CF details (replace jQuery with native JavaScript)
+    var codeSelectElement = document.getElementById("select" + s1 + "_code");
+    var codeSelectedValue = codeSelectElement.options[codeSelectElement.selectedIndex].value;
+
+    // Call the getBasicDetails function with the selected values
+    getBasicDetails(s1, codeSelectedValue, '');
+
+    // Hide the loading wrap (slow fade-out is replaced with instant hide for compatibility)
+    document.getElementById('loading_wrap').style.display = 'none';
+}
