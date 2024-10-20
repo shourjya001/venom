@@ -1,0 +1,20 @@
+function populateSearchOptions(type, data) {
+    var select = document.getElementById('select' + type + '_code');
+    if (select != null) {  // Ensure the select element exists
+        select.options.length = 0;
+        var defaultOption = document.createElement('option');
+        defaultOption.text = 'None';
+        select.add(defaultOption);
+
+        for (var key in data[type]) {
+            if (data[type].hasOwnProperty(key)) {
+                var option = document.createElement('option');
+                option.value = data[type][key].id;
+                option.text = data[type][key].name;
+                select.add(option);
+            }
+        }
+    } else {
+        alert("Select element 'select" + type + "_code' not found.");
+    }
+}
