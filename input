@@ -1,0 +1,43 @@
+function inputfieldsearch(param) {
+    // Show the loading wrap
+    document.getElementById("loading_wrap").style.display = 'block';
+
+    var searchString = '';
+    var searchType = '';
+    var stype = '';
+
+    // Check for SubGroup search
+    if (param == 'txtsgr_code' || param == 'txtsgr_name') {
+        stype = 'sgr';
+
+        if (param == 'txtsgr_code') {
+            searchString = document.getElementById("txtsgr_code").value;
+            searchType = 'fetchSubGroupBasedonID';
+        } else if (param == 'txtsgr_name') {
+            searchString = document.getElementById("txtsgr_name").value;
+            searchType = 'fetchSubGroupBasedonName';
+        }
+
+        // Perform common search if searchType is set
+        if (searchType != '') {
+            commonsearch(searchType, searchString, param, stype);
+        }
+
+    // Check for LegalEntity search
+    } else if (param == 'txtle_code' || param == 'txtle_name') {
+        stype = 'le';
+
+        if (param == 'txtle_code') {
+            searchString = document.getElementById("txtle_code").value;
+            searchType = 'fetchLegalEntityBasedonID';
+        } else if (param == 'txtle_name') {
+            searchString = document.getElementById("txtle_name").value;
+            searchType = 'fetchLegalEntityBasedonName';
+        }
+
+        // Perform common search if searchType is set
+        if (searchType != '') {
+            commonsearch(searchType, searchString, param, stype);
+        }
+    }
+}
