@@ -1,4 +1,3 @@
-// Attach the event when the DOM is ready for IE5
 function init() {
     document.onreadystatechange = function () {
         if (document.readyState === "complete") {
@@ -6,29 +5,30 @@ function init() {
 
             // Form submit handling
             var form = document.getElementsByTagName('form')[0];
-            form.onsubmit=function(e){
+            form.onsubmit = function (e) {
                 e.returnValue = false; // Prevent form from submitting normally
 
                 var selectC3 = document.getElementById('selectc3');
-                selectC3.attachEvent('onchange', function() {
+                // Use the onchange property for IE5 compatibility
+                selectC3.onchange = function () {
                     var mapstr2 = selectC3.options[selectC3.selectedIndex].value;
                     var subgroupmapstr2 = document.getElementById('selectc2').options[document.getElementById('selectc2').selectedIndex].value;
 
                     if (mapstr2 !== '' && subgroupmapstr2 !== 'None') {
                         // Use iframe to submit form for IE5 compatibility
-                        document.getElementById('hiddenFrame').contentWindow.document.open();
-                        document.getElementById('hiddenFrame').contentWindow.document.write('<form id="hiddenForm" method="POST" action="dbe_cfl_user_accessTransferSave.php">' +
+                        var hiddenFrame = document.getElementById('hiddenFrame');
+                        hiddenFrame.contentWindow.document.open();
+                        hiddenFrame.contentWindow.document.write('<form id="hiddenForm" method="POST" action="dbe_cfl_user_accessTransferSave.php">' +
                             '<input type="hidden" name="searchType" value="' + mapstr2 + '">' +
                             '<input type="hidden" name="usergroup" value="' + subgroupmapstr2 + '">' +
                             '<input type="hidden" name="codria" value="' + document.querySelector("input[name='codria']:checked").value + '">' +
                             '<input type="hidden" name="sub_group_code" value="' + document.getElementById("selectsgr_code").value + '">' +
                             '</form>');
-                        document.getElementById('hiddenFrame').contentWindow.document.getElementById('hiddenForm').submit();
-                        document.getElementById('hiddenFrame').contentWindow.document.close();
+                        hiddenFrame.contentWindow.document.getElementById('hiddenForm').submit();
+                        hiddenFrame.contentWindow.document.close();
 
                         // Handling success after form submission
-                        var hiddenFrame = document.getElementById('hiddenFrame');
-                        hiddenFrame.onreadystatechange = function() {
+                        hiddenFrame.onreadystatechange = function () {
                             if (hiddenFrame.readyState === "complete") {
                                 var response = hiddenFrame.contentWindow.document.body.innerHTML;
                                 var parsedResponse;
@@ -62,7 +62,7 @@ function init() {
 
                                 // Sorting options alphabetically (for IE5)
                                 var options = Array.prototype.slice.call(selectC2.options);
-                                options.sort(function(a, b) {
+                                options.sort(function (a, b) {
                                     return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
                                 });
 
@@ -74,7 +74,7 @@ function init() {
                             }
                         };
                     }
-                });
+                };
             };
         }
     };
