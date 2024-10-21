@@ -1,0 +1,83 @@
+function commonsearch(searchType, searchString, searchParam, stype, check) {
+    var xmlhttp;
+
+    // Properly create the XMLHTTP request object for IE5/IE6
+    try {
+        if (window.ActiveXObject) {
+            // Try different versions of ActiveXObject for older IE versions
+            try {
+                xmlhttp = new ActiveXObject("Msxml2.XMLHTTP"); // Most modern for IE5/IE6
+            } catch (e) {
+                try {
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // Older fallback
+                } catch (e) {
+                    alert("Your browser does not support AJAX!"); // If everything fails
+                    return;
+                }
+            }
+        } else {
+            alert("Your browser does not support ActiveXObject. AJAX requests will not work.");
+            return;
+        }
+    } catch (ex) {
+        alert("Failed to create an XMLHTTP object: " + ex.message);
+        return;
+    }
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4) { // Request complete
+            if (xmlhttp.status == 200) { // Request successful
+                var resultData;
+                try {
+                    resultData = eval('(' + xmlhttp.responseText + ')'); // Parse the JSON
+                } catch (e) {
+                    alert("Error parsing the server response.");
+                    return;
+                }
+
+                // Handle the result
+                if (!resultData || resultData.length == 0) {
+                    if (check == 0) {
+                        populateSearchOptions(stype, resultData);
+                    }
+
+                    if (stype == 'sgr') {
+                        commonsearch('fetchLEBasedonSGR', resultData[0]['id'], searchParam, 'le', 0);
+                    } else if (stype == 'le') {
+                        if (document.getElementById("selectsgr_code").value != '' && document.getElementById("selectle_code").value != '') {
+                            checkForCreditFiles(document.getElementById("selectsgr_code").value, document.getElementById("selectle_code").value);
+                        }
+                    }
+
+                    document.getElementById('loading_wrap').style.display = 'none';
+                } else {
+                    if (check == 0) {
+                        alert("No Matching Results Found...! or You are not authorized to see this SGR/LE, please contact the Banking Administrator.");
+                    }
+                    document.getElementById('loading_wrap').style.display = 'none';
+
+                    if (stype == 'le') {
+                        if (check == 1) {
+                            document.getElementById("codria_span").innerHTML = '';
+                            alert("No references are available for this LE.");
+                        } else {
+                            emptydropdown(stype);
+                        }
+                    } else if (stype == 'sgr') {
+                        emptydropdown(stype);
+                        emptydropdown('le');
+                    }
+                }
+            } else {
+                alert("AJAX request failed with status: " + xmlhttp.status);
+            }
+        }
+    };
+
+    // Open the request and send it
+    xmlhttp.open("POST", "dbe_cfl_user_accessTransferSave.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Send the request with the encoded parameters
+    xmlhttp.send("searchType=" + escape(searchType) + "&searchString=" + escape(searchString));
+}
