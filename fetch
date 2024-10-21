@@ -1,0 +1,43 @@
+function fetchCurrencies() {
+    var xhr = createRequest(); // Create the XMLHTTP object for IE5/6 or modern browsers
+
+    xhr.open("POST", "dbe_cfl_ModifyCurrency_Save.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Ensure response is valid before continuing
+            var data;
+            try {
+                // Parse JSON safely for IE5 (using eval as JSON.parse is not supported)
+                data = eval('(' + xhr.responseText + ')');
+            } catch (e) {
+                alert("Error parsing the server response.");
+                return;
+            }
+
+            var newCurrencyDropdown = document.getElementById("newcurrency");
+
+            // Check if dropdown exists and data is available
+            if (newCurrencyDropdown && data && data.length > 0) {
+                // Clear the existing options
+                newCurrencyDropdown.options.length = 0;
+
+                // Loop through the response data and add options to the dropdown
+                for (var i = 0; i < data.length; i++) {
+                    var option = document.createElement("option"); // Create new <option> element
+                    option.value = data[i].CODCUR;
+                    option.text = data[i].CODCUR + " - " + data[i].SHNCUR;
+
+                    // Append the option to the dropdown
+                    newCurrencyDropdown.appendChild(option);
+                }
+            } else {
+                alert("No data available to populate the currency dropdown.");
+            }
+        }
+    };
+
+    // Send the request with required parameters
+    xhr.send("searchType=fetchAllCurrency");
+}
