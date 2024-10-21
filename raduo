@@ -1,0 +1,84 @@
+<fieldset>
+    <input type="radio" name="codType" value="SGR" id="ONLYSGR" checked>
+    <label for="ONLYSGR"><font size="-1">Sub-group</font></label><br>
+
+    <input type="radio" name="codType" value="LE" id="ONLYLE">
+    <label for="ONLYLE"><font size="-1">LE</font></label><br>
+</fieldset>
+
+<!-- The loading wrapper and sections for demonstration purposes -->
+<div id="loading_wrap" style="display:none;">Loading...</div>
+<div id="SGR_SEC" style="display:none;">SGR Section</div>
+<div id="LE_SEC" style="display:none;">LE Section</div>
+
+<script type="text/javascript">
+    function attachEvents() {
+        var onlySGR = document.getElementById("ONLYSGR");
+        var onlyLE = document.getElementById("ONLYLE");
+
+        if (onlySGR) {
+            // For IE5 compatibility, use attachEvent
+            if (onlySGR.attachEvent) {
+                onlySGR.attachEvent('onclick', function() {
+                    setCF_GroupLevel('sgr');
+                });
+            } else {
+                onlySGR.addEventListener('click', function() {
+                    setCF_GroupLevel('sgr');
+                });
+            }
+        }
+
+        if (onlyLE) {
+            if (onlyLE.attachEvent) {
+                onlyLE.attachEvent('onclick', function() {
+                    setCF_GroupLevel('le');
+                });
+            } else {
+                onlyLE.addEventListener('click', function() {
+                    setCF_GroupLevel('le');
+                });
+            }
+        }
+    }
+
+    function setCF_GroupLevel(grouptype) {
+        var loadingWrap = document.getElementById('loading_wrap');
+        if (loadingWrap) {
+            loadingWrap.style.display = 'block'; // Show loading
+
+            // Simulate fade out with a timeout
+            setTimeout(function() {
+                loadingWrap.style.display = 'none';
+            }, 1000);
+        }
+
+        if (grouptype === 'sgr') {
+            document.getElementById('LE_SEC').style.display = 'none';
+            document.getElementById('SGR_SEC').style.display = 'block';
+            restparams('le');
+        } else if (grouptype === 'le') {
+            document.getElementById('LE_SEC').style.display = 'block';
+            document.getElementById('SGR_SEC').style.display = 'none';
+            restparams('sgr');
+        }
+    }
+
+    function restparams(type) {
+        // Example function to simulate resetting parameters
+        alert('Reset parameters for: ' + type);
+    }
+
+    // Use attachEvent for IE5/IE6 or addEventListener for modern browsers
+    if (document.attachEvent) {
+        // For IE5/IE6
+        document.attachEvent('onreadystatechange', function() {
+            if (document.readyState === 'complete') {
+                attachEvents();
+            }
+        });
+    } else {
+        // For modern browsers
+        document.addEventListener('DOMContentLoaded', attachEvents);
+    }
+</script>
