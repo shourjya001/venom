@@ -1,0 +1,37 @@
+function selectdropdown(s1, s2) {
+    var s3 = '';
+
+    // Correct the comparison logic
+    if (s2 === 'code') {
+        s3 = 'name';
+    } else if (s2 === 'name') {
+        s3 = 'code';
+    }
+
+    // Show loading spinner
+    document.getElementById('loading_wrap').style.display = 'block';
+
+    // Get the selected value from the dropdown
+    var selectElement = document.getElementById("select" + s1 + "_" + s2);
+    var selectedValue = '';
+    if (selectElement && selectElement.options && selectElement.selectedIndex >= 0) {
+        selectedValue = selectElement.options[selectElement.selectedIndex].value;
+    }
+
+    // Update the other dropdown if it exists
+    var otherSelectElement = document.getElementById("select" + s1 + "_" + s3);
+    if (otherSelectElement) {
+        for (var i = 0; i < otherSelectElement.options.length; i++) {
+            if (otherSelectElement.options[i].value === selectedValue) {
+                otherSelectElement.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    // Pull currency & CF details
+    getBasicDetails(s1, selectedValue, '');
+
+    // Hide loading spinner
+    document.getElementById('loading_wrap').style.display = 'none';
+}
