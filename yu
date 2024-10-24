@@ -1,0 +1,81 @@
+function setCF_GroupLevel(grouptype) {
+    // Show loading indicator
+    document.getElementById('loading_wrap').style.display = 'block';
+
+    if (grouptype === 'sgr') {
+        // Hide LE_SEC section and show SGR_SEC section
+        var leSec = document.getElementById("ILE_SEC");
+        if (leSec) {
+            leSec.style.display = 'none';  // Hide LE_SEC
+        }
+        
+        var sgrSec = document.getElementById("SGR_SEC");
+        if (sgrSec) {
+            sgrSec.style.display = 'block';  // Show SGR_SEC
+        }
+
+        restparams('le');  // Call restparams with 'le'
+
+    } else if (grouptype === 'le') {
+        // Show LE_SEC section and hide SGR_SEC section
+        var leSec = document.getElementById("LE_SEC");
+        if (leSec) {
+            leSec.style.display = 'block';  // Show LE_SEC
+        }
+
+        var sgrSec = document.getElementById("SGR_SEC");
+        if (sgrSec) {
+            sgrSec.style.display = 'none';  // Hide SGR_SEC
+        }
+    }
+
+    // Call restparams with 'sgr'
+    restparams('sgr');
+
+    // Simulate fadeOut using a timeout to hide the loading indicator
+    setTimeout(function() {
+        document.getElementById('loading_wrap').style.display = 'none';
+    }, 1000);  // IE5 does not support jQuery fadeOut, so use setTimeout
+}
+
+function getCFdetails(codstatus) {
+    // Show loading indicator
+    document.getElementById('loading_wrap').style.display = 'block';
+
+    var type = '';
+    var searchString = '';
+
+    // Get the value of the select element for SGR code
+    var selectSgrCode = document.getElementById("selectsgr_code");
+    if (selectSgrCode && selectSgrCode.value !== '') {
+        searchString = selectSgrCode.value;
+    } else {
+        // Get the value of the select element for LE code
+        var selectLeCode = document.getElementById("selectle_code");
+        if (selectLeCode && selectLeCode.value !== '') {
+            searchString = selectLeCode.value;
+        }
+    }
+
+    if (searchString !== '') {
+        // Pull currency details if a search string exists
+        getBasicDetails(type, searchString, codstatus);
+    }
+
+    // Simulate fadeOut using setTimeout to hide the loading indicator
+    setTimeout(function() {
+        document.getElementById('loading_wrap').style.display = 'none';
+    }, 1000);
+}
+
+// Example restparams function
+function restparams(val) {
+    // Reset fields or perform actions for the provided value
+    console.log('restparams called with:', val);
+}
+
+// Example getBasicDetails function (you can define this based on your needs)
+function getBasicDetails(type, searchString, codstatus) {
+    // Simulate retrieving and handling basic details
+    console.log('getBasicDetails called with:', type, searchString, codstatus);
+}
