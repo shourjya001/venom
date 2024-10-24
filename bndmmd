@@ -1,0 +1,67 @@
+function commonsearch(searchType, searchString, searchParam, stype) {
+    var xmlhttp;
+
+    // Detect modern browser (including Chrome, Firefox, IE7+)
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest(); // Standard modern XMLHttpRequest
+    } 
+    // Fallback for older IE browsers (IE5, IE6)
+    else if (window.ActiveXObject) {
+        try {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // Older ActiveX for IE5, IE6
+        } catch (e) {
+            alert("Your browser does not support XMLHTTP.");
+            return;
+        }
+    }
+
+    // Set up callback for handling response
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            try {
+                // Parse the response safely
+                var resultData = eval('(' + xmlhttp.responseText + ')');  // Use eval() instead of JSON.parse for IE5 support
+
+                if (resultData !== false) {
+                    // Handle the resultData (insert dropdowns)
+                    getBasicDetails(stype, resultData[0]['id'], '');
+
+                    // Build HTML for dropdowns
+                    var selectdropdownHTML = '<select id="select' + stype + '_code" onchange="selectdropdownHandler(\'' + stype + '\', \'code\')">';
+                    for (var i = 0; i < resultData.length; i++) {
+                        selectdropdownHTML += '<option value="' + resultData[i].id + '">' + resultData[i].id + '</option>';
+                    }
+                    selectdropdownHTML += '</select>';
+
+                    var selectdropdown2HTML = '<select id="select' + stype + '_name" onchange="selectdropdownHandler(\'' + stype + '\', \'name\')">';
+                    for (var i = 0; i < resultData.length; i++) {
+                        selectdropdown2HTML += '<option value="' + resultData[i].id + '">' + resultData[i].name + '</option>';
+                    }
+                    selectdropdown2HTML += '</select>';
+
+                    // Insert the new dropdown elements into the DOM
+                    var subgroupnameId = document.getElementById('subgroupname_id');
+                    if (subgroupnameId) {
+                        subgroupnameId.insertAdjacentHTML('beforeend', selectdropdownHTML);
+                        subgroupnameId.insertAdjacentHTML('beforeend', selectdropdown2HTML);
+                        alert("Dropdowns inserted.");
+                    } else {
+                        alert("Element 'subgroupname_id' not found.");
+                    }
+
+                    // Hide loading spinner
+                    document.getElementById('loading_wrap').style.display = 'none';
+                } else {
+                    alert("No match found.");
+                }
+            } catch (e) {
+                alert("Error parsing response: " + e.message);
+            }
+        }
+    };
+
+    // Send the AJAX request
+    xmlhttp.open("POST", "dbe_cfl_ModifyCurrency_Save.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("searchType=" + searchType + "&searchString=" + searchString);
+}
