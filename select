@@ -1,0 +1,45 @@
+function selectdropdown(s1, s2) {
+    var s3 = '';
+
+    // Fix assignment error (use '==' for comparison)
+    if (s2 == 'code') {
+        s3 = 'name';
+    } else if (s2 == 'name') {
+        s3 = 'code';
+    }
+
+    // Handle loading wrap element
+    var loadingWrap = document.all["loading_wrap"];
+    if (loadingWrap) {
+        loadingWrap.style.display = 'block';  // Show loading
+
+        // Get selected value from dropdown (select element)
+        var selectElement = document.getElementById("select" + s1 + "_" + s2);
+        if (selectElement) {
+            var selectedOption = selectElement.options[selectElement.selectedIndex].value;  // Get selected option value
+
+            // Set corresponding value in the other field (code or name)
+            var targetElement = document.getElementById("select" + s1 + "_" + s3);
+            if (targetElement) {
+                targetElement.value = selectedOption;
+            }
+        }
+
+        // Call getBasicDetails with 'code' selection
+        var selectCodeElement = document.getElementById("select" + s1 + "_code");
+        if (selectCodeElement) {
+            var selectedCodeValue = selectCodeElement.options[selectCodeElement.selectedIndex].value;
+            getBasicDetails(s1, selectedCodeValue, '');
+        }
+
+        // Simulate fadeOut using setTimeout for 1 second
+        setTimeout(function () {
+            loadingWrap.style.display = 'none';  // Hide loading after 1 second
+        }, 1000);  // IE5 doesn't support fadeOut, so we use setTimeout
+    }
+}
+
+// Example getBasicDetails function (to simulate what happens)
+function getBasicDetails(s1, codeValue, status) {
+    console.log('Fetching details for:', s1, codeValue, status);
+}
