@@ -1,0 +1,98 @@
+// Polyfill for String.prototype.trim() for IE5 compatibility
+if (!String.prototype.trim) {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+    };
+}
+
+function commonsearch(searchType, searchString, searchParam, stype) {
+    var xmlhttp;
+
+    // Check for ActiveXObject (IE5) for XMLHttpRequest
+    if (window.ActiveXObject) {
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    } else {
+        alert("Your browser does not support XMLHTTP.");
+        return;
+    }
+
+    // Set up callback for handling response
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            try {
+                var responseText = xmlhttp.responseText.trim();  // Use the polyfilled trim()
+                console.log("Response Text:", responseText);  // For debugging
+
+                // Avoid running eval on empty or null responses
+                if (responseText) {
+                    var resultData = eval('(' + responseText + ')');  // Using eval() instead of JSON.parse
+                } else {
+                    alert("Empty response received.");
+                    return;
+                }
+
+                console.log("Parsed Result Data:", resultData);  // Debugging the parsed result
+
+                if (resultData && resultData.length > 0) {
+                    getBasicDetails(stype, resultData[0]['id'], '');
+
+                    // Create select dropdown elements
+                    var selectdropdown = document.createElement("select");
+                    selectdropdown.id = "select" + stype + "_code";
+                    if (selectdropdown.attachEvent) {
+                        selectdropdown.attachEvent("onchange", function() { selectdropdownHandler(stype, 'code'); });
+                    } else {
+                        selectdropdown.onchange = function() { selectdropdownHandler(stype, 'code'); };
+                    }
+
+                    var selectdropdown2 = document.createElement("select");
+                    selectdropdown2.id = "select" + stype + "_name";
+                    if (selectdropdown2.attachEvent) {
+                        selectdropdown2.attachEvent("onchange", function() { selectdropdownHandler(stype, 'name'); });
+                    } else {
+                        selectdropdown2.onchange = function() { selectdropdownHandler(stype, 'name'); };
+                    }
+
+                    // Replace existing text fields with dropdowns
+                    var txtCode = document.getElementById("txt" + stype + "_code");
+                    var txtName = document.getElementById("txt" + stype + "_name");
+                    txtCode.parentNode.replaceChild(selectdropdown, txtCode);
+                    txtName.parentNode.replaceChild(selectdropdown2, txtName);
+
+                    // Show reset button
+                    var resetButton = document.getElementById(stype + "_reset");
+                    resetButton.style.display = "block";
+
+                    // Populate the dropdowns
+                    for (var i = 0; i < resultData.length; i++) {
+                        var option1 = document.createElement("option");
+                        option1.value = resultData[i].id;
+                        option1.text = resultData[i].id;
+                        selectdropdown.appendChild(option1);
+
+                        var option2 = document.createElement("option");
+                        option2.value = resultData[i].id;
+                        option2.text = resultData[i].name;
+                        selectdropdown2.appendChild(option2);
+                    }
+
+                    // Append dropdowns to the DOM
+                    document.getElementById('subgroupname_id').appendChild(selectdropdown);
+                    document.getElementById('subgroupname_id').appendChild(selectdropdown2);
+
+                    // Hide loading spinner
+                    document.getElementById('loading_wrap').style.display = 'none';
+                } else {
+                    alert("No match found.");
+                }
+            } catch (e) {
+                alert("Error parsing response: " + e.message);
+            }
+        }
+    };
+
+    // Send the AJAX request
+    xmlhttp.open("POST", "dbe_cfl_ModifyCurrency_Save.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("searchType=" + encodeURIComponent(searchType) + "&searchString=" + encodeURIComponent(searchString));
+}
