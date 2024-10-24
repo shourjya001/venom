@@ -1,0 +1,63 @@
+function sgrLeReset(val) {
+
+    document.getElementById('loading_wrap').style.display = 'block'; // Show loading
+
+    if(val != '') {
+        restparams(val);
+    }
+
+    // Simulating fadeOut with setTimeout (since IE5 doesn't support fadeOut)
+    setTimeout(function() {
+        document.getElementById('loading_wrap').style.display = 'none'; // Hide loading
+    }, 1000);
+}
+
+function restparams(val) {
+    // Create input elements using traditional DOM methods
+    var inputfield = document.createElement('input');
+    inputfield.id = 'txt' + val + '_code';
+    inputfield.name = 'txt' + val + ' code';
+    inputfield.onchange = function() {
+        inputfieldsearch(this.id);
+    };
+
+    var inputfield2 = document.createElement('input');
+    inputfield2.id = 'txt' + val + '_name';
+    inputfield2.name = 'txt' + val + '_name';
+    inputfield2.onchange = function() {
+        inputfieldsearch(this.id);
+    };
+
+    // Alert to simulate behavior
+    alert("restttttttttttttttttt");
+
+    // Replace the select elements with the new input fields
+    var selectCode = document.getElementById("select" + val + "_code");
+    var selectName = document.getElementById("select" + val + "_name");
+
+    if(selectCode && selectName) {
+        selectCode.parentNode.replaceChild(inputfield, selectCode);
+        selectName.parentNode.replaceChild(inputfield2, selectName);
+    }
+
+    // Reset fields
+    if (document.getElementById("foldcurrency")) {
+        document.getElementById("foldcurrency").innerHTML = '';
+    }
+
+    if (document.getElementById("closeComment")) {
+        document.getElementById("closeComment").value = '';
+    }
+
+    // Reset and disable checkbox
+    var codtypeCdtElements = document.getElementsByName('codtype_cdt');
+    for (var i = 0; i < codtypeCdtElements.length; i++) {
+        codtypeCdtElements[i].checked = false;
+        codtypeCdtElements[i].disabled = true;
+    }
+}
+
+function inputfieldsearch(id) {
+    // Define your input field search logic here
+    alert('Searching for input field with id: ' + id);
+}
