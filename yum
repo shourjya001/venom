@@ -1,0 +1,64 @@
+function commonsearch(searchType, searchString, searchParam, stype) {
+    var xmlhttp;
+
+    // Detect modern browser (including Chrome, Firefox, IE7+)
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest(); // Standard XMLHttpRequest for modern browsers
+    } 
+    // Fallback for IE5, IE6
+    else if (window.ActiveXObject) {
+        try {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // ActiveX for IE5, IE6
+        } catch (e) {
+            alert("Your browser does not support XMLHTTP.");
+            return;
+        }
+    }
+
+    // Set up callback for handling response
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            try {
+                // Parse the response
+                var resultData = eval('(' + xmlhttp.responseText + ')');  // Use eval() instead of JSON.parse for IE5 support
+
+                if (resultData !== false) {
+                    // Handle the resultData to update existing dropdowns
+
+                    // Get the existing dropdown elements
+                    var selectdropdown = document.getElementById("select" + stype + "_code");
+                    var selectdropdown2 = document.getElementById("select" + stype + "_name");
+
+                    // Clear the existing options in the dropdowns
+                    selectdropdown.options.length = 0; // Remove all existing options
+                    selectdropdown2.options.length = 0; // Remove all existing options
+
+                    // Populate the dropdowns with new options
+                    for (var i = 0; i < resultData.length; i++) {
+                        var option1 = document.createElement("option");
+                        option1.value = resultData[i].id;
+                        option1.text = resultData[i].id;
+                        selectdropdown.appendChild(option1);
+
+                        var option2 = document.createElement("option");
+                        option2.value = resultData[i].id;
+                        option2.text = resultData[i].name;
+                        selectdropdown2.appendChild(option2);
+                    }
+
+                    // Hide the loading spinner
+                    document.getElementById('loading_wrap').style.display = 'none';
+                } else {
+                    alert("No match found.");
+                }
+            } catch (e) {
+                alert("Error parsing response: " + e.message);
+            }
+        }
+    };
+
+    // Send the AJAX request
+    xmlhttp.open("POST", "dbe_cfl_ModifyCurrency_Save.php", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("searchType=" + searchType + "&searchString=" + searchString);
+}
